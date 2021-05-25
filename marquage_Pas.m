@@ -34,17 +34,23 @@ function marquage_Pas(chemin, montrerGraphique, marquagePhaseMarche)
         marqueurDemiTour = marqueurs.RTRO(:,1); %A ajuster en fonction du type de demi-tour et des mires disponibles.
         frequence        = btkGetPointFrequency(acq); % fréquence d'acquisition des caméras
         btkClearEvents(acq);
+        
+        % Conversion des trous en valeurs manquantes
+        marqueurs.LHEE(marqueurs.LHEE(:,:) == 0) = NaN;
+        marqueurs.RHEE(marqueurs.RHEE(:,:) == 0) = NaN;
+        marqueurs.LTOE(marqueurs.LTOE(:,:) == 0) = NaN;
+        marqueurs.RTOE(marqueurs.RTOE(:,:) == 0) = NaN;
 
-        [pks, locs] = findpeaks(marqueurs.LHEE(:,3), "MinPeakProminence", 50); %On enlève par défaut les 50 dernières frames.
+        [pks, locs] = findpeaks(marqueurs.LHEE(:,3), "MinPeakProminence", 50, "MinPeakDistance", 25);
         structure.Left_Foot_Off = locs'/frequence;
 
-        [pks, locs] = findpeaks(marqueurs.RHEE(:,3), "MinPeakProminence", 50);
+        [pks, locs] = findpeaks(marqueurs.RHEE(:,3), "MinPeakProminence", 50, "MinPeakDistance", 25);
         structure.Right_Foot_Off = locs'/frequence;
 
-        [pks, locs] = findpeaks(marqueurs.LHEE(:,3)*-1, "MinPeakProminence", 10);
+        [pks, locs] = findpeaks(marqueurs.LHEE(:,3)*-1, "MinPeakProminence", 10, "MinPeakDistance", 25);
         structure.Left_Foot_Strike = locs'/frequence;
 
-        [pks, locs] = findpeaks(marqueurs.RHEE(:,3)*-1, "MinPeakProminence", 10);
+        [pks, locs] = findpeaks(marqueurs.RHEE(:,3)*-1, "MinPeakProminence", 10, "MinPeakDistance", 25);
         structure.Right_Foot_Strike = locs'/frequence;
 
         %Création du graphique mettant en évidence les évènements détectés,
@@ -52,13 +58,13 @@ function marquage_Pas(chemin, montrerGraphique, marquagePhaseMarche)
         if montrerGraphique == 1
             figure('Name', listeFichiersC3D(i).name,'NumberTitle','off')
             subplot(221)
-            findpeaks(marqueurs.LHEE(:,3), "MinPeakProminence", 50), title('Foot Off Gauche')
+            findpeaks(marqueurs.LHEE(:,3), "MinPeakProminence", 50, "MinPeakDistance", 25), title('Foot Off Gauche')
             subplot(222)
-            findpeaks(marqueurs.RHEE(:,3), "MinPeakProminence", 50), title('Foot Off Droit')
+            findpeaks(marqueurs.RHEE(:,3), "MinPeakProminence", 50, "MinPeakDistance", 25), title('Foot Off Droit')
             subplot(223)
-            findpeaks(marqueurs.LHEE(:,3)*-1, "MinPeakProminence", 10), title('Foot Strike Gauche')
+            findpeaks(marqueurs.LHEE(:,3)*-1, "MinPeakProminence", 8, "MinPeakDistance", 25), title('Foot Strike Gauche')
             subplot(224)
-            findpeaks(marqueurs.RHEE(:,3)*-1, "MinPeakProminence", 10), title('Foot Strike Droit')
+            findpeaks(marqueurs.RHEE(:,3)*-1, "MinPeakProminence", 8, "MinPeakDistance", 25), title('Foot Strike Droit')
 
             pause;
             disp('Appuyez sur une touche pour continuer');
